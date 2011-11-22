@@ -6,6 +6,7 @@ class Course < ActiveRecord::Base
   has_many :faculty_assignments
   has_many :faculty, :through => :faculty_assignments, :source => :person #:join_table=>"courses_people", :class_name => "Person"
 
+  has_many :students_info_file
 
   validates_presence_of :semester, :year, :mini, :name
 
@@ -169,6 +170,10 @@ class Course < ActiveRecord::Base
     unless self.is_configured?
       CourseMailer.deliver_configure_course_faculty_email(self)
     end
+  end
+
+  def permission_to_upload_sif?(current_user)
+    return (current_user.is_staff? || current_user.is_admin? || current_user.is_teacher?)
   end
 
   protected
